@@ -1,0 +1,1170 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가현이랑 놀자~</title>
+  <style>
+    :root {
+      --ink: #251b18;
+      --paper: #fff8ee;
+      --accent: #e4412f;
+      --accent-2: #ffbf2f;
+      --mint: #1ba784;
+      --sky: #5aa7ff;
+      --line: rgba(37, 27, 24, 0.18);
+      --shadow: 0 18px 45px rgba(37, 27, 24, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255, 191, 47, 0.34), transparent 28%),
+        radial-gradient(circle at 88% 8%, rgba(90, 167, 255, 0.28), transparent 25%),
+        linear-gradient(135deg, #fff8ee 0%, #ffe8d1 48%, #eaf8ff 100%);
+      overflow: hidden;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px clamp(16px, 3vw, 34px);
+      background: rgba(255, 248, 238, 0.82);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+      position: relative;
+      z-index: 5;
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      min-width: 0;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4.6vw, 52px);
+      line-height: 1;
+      letter-spacing: 0;
+      color: #d62f24;
+      text-shadow: 0 3px 0 rgba(255, 191, 47, 0.45);
+      white-space: nowrap;
+    }
+
+    .brand span {
+      font-weight: 800;
+      font-size: 14px;
+      color: rgba(37, 27, 24, 0.62);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .icon-button,
+    .primary-button,
+    .ghost-button {
+      height: 42px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fffdf8;
+      box-shadow: 0 8px 18px rgba(37, 27, 24, 0.08);
+      transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+    }
+
+    .icon-button {
+      width: 42px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+    }
+
+    .primary-button,
+    .ghost-button {
+      padding: 0 15px;
+      font-weight: 900;
+    }
+
+    .primary-button {
+      color: #fffdf8;
+      background: var(--accent);
+      border-color: rgba(0, 0, 0, 0.08);
+    }
+
+    .ghost-button:hover,
+    .icon-button:hover,
+    .primary-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(37, 27, 24, 0.14);
+    }
+
+    .screen {
+      display: none;
+      min-height: 0;
+      position: relative;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .menu {
+      height: 100%;
+      padding: clamp(18px, 4vw, 44px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(16px, 3vw, 30px);
+      align-items: stretch;
+    }
+
+    .game-choice {
+      position: relative;
+      overflow: hidden;
+      min-height: 440px;
+      border-radius: 8px;
+      padding: clamp(20px, 3vw, 34px);
+      border: 2px solid rgba(255, 255, 255, 0.78);
+      box-shadow: var(--shadow);
+      isolation: isolate;
+      display: grid;
+      align-content: end;
+      text-align: left;
+    }
+
+    .game-choice::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.24));
+    }
+
+    .game-choice::after {
+      content: "";
+      position: absolute;
+      inset: auto -12% -16% -12%;
+      height: 58%;
+      z-index: -1;
+      background: rgba(255, 255, 255, 0.54);
+      transform: rotate(-3deg);
+    }
+
+    .choice-catch {
+      background:
+        linear-gradient(150deg, rgba(228, 65, 47, 0.2), rgba(255, 191, 47, 0.33)),
+        #fff1d6;
+    }
+
+    .choice-dodge {
+      background:
+        linear-gradient(150deg, rgba(90, 167, 255, 0.23), rgba(27, 167, 132, 0.26)),
+        #eaf8ff;
+    }
+
+    .choice-art {
+      position: absolute;
+      inset: 26px 20px auto 20px;
+      height: 46%;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+    }
+
+    .big-emoji {
+      font-size: clamp(88px, 13vw, 170px);
+      filter: drop-shadow(0 16px 14px rgba(37, 27, 24, 0.16));
+    }
+
+    .game-choice h2 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 54px);
+      letter-spacing: 0;
+      line-height: 1.05;
+    }
+
+    .game-choice p {
+      margin: 0 0 22px;
+      max-width: 520px;
+      font-weight: 800;
+      color: rgba(37, 27, 24, 0.68);
+      line-height: 1.5;
+    }
+
+    .choice-start {
+      width: min(220px, 100%);
+      height: 50px;
+      border-radius: 8px;
+      color: #fffdf8;
+      font-weight: 900;
+      font-size: 18px;
+      background: var(--ink);
+      box-shadow: 0 12px 24px rgba(37, 27, 24, 0.2);
+    }
+
+    .hud {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .hud-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .pill {
+      min-width: 88px;
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 900;
+      background: rgba(255, 253, 248, 0.9);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 18px rgba(37, 27, 24, 0.09);
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+    }
+
+    .game-stage {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      cursor: none;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 7;
+      place-items: center;
+      padding: 18px;
+      background: rgba(37, 27, 24, 0.34);
+      backdrop-filter: blur(8px);
+    }
+
+    .overlay.show {
+      display: grid;
+    }
+
+    .dialog {
+      width: min(520px, 100%);
+      border-radius: 8px;
+      padding: 24px;
+      background: #fffdf8;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .dialog h2 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 5vw, 42px);
+      line-height: 1.08;
+    }
+
+    .result-score {
+      margin: 12px 0 18px;
+      font-size: clamp(34px, 7vw, 64px);
+      font-weight: 1000;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .name-row {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0 12px;
+    }
+
+    .name-row input {
+      min-width: 0;
+      flex: 1;
+      height: 44px;
+      padding: 0 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      font: inherit;
+      font-weight: 800;
+      background: #fff8ee;
+    }
+
+    .dialog-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .records-list {
+      display: grid;
+      gap: 8px;
+      margin: 18px 0;
+      text-align: left;
+      max-height: min(48vh, 360px);
+      overflow: auto;
+    }
+
+    .pause-mark {
+      margin: 0 auto 12px;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fffdf8;
+      background: var(--ink);
+      font-size: 38px;
+      font-weight: 1000;
+      box-shadow: 0 12px 25px rgba(37, 27, 24, 0.18);
+    }
+
+    .record-row {
+      display: grid;
+      grid-template-columns: 34px 1fr auto auto;
+      align-items: center;
+      gap: 10px;
+      min-height: 42px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #fff8ee;
+      border: 1px solid var(--line);
+      font-weight: 900;
+    }
+
+    .record-row small {
+      color: rgba(37, 27, 24, 0.54);
+      font-weight: 800;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 780px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        min-height: 100vh;
+        height: auto;
+      }
+
+      .topbar {
+        min-height: 112px;
+        align-items: flex-start;
+      }
+
+      h1 {
+        white-space: normal;
+      }
+
+      .brand {
+        width: calc(100% - 32px);
+        top: 62px;
+      }
+
+      .top-actions {
+        align-self: flex-end;
+      }
+
+      .menu {
+        grid-template-columns: 1fr;
+      }
+
+      .game-choice {
+        min-height: 360px;
+      }
+
+      .screen.active:not(#menuScreen) {
+        height: calc(100vh - 103px);
+        min-height: 560px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>가현이랑 놀자~</h1>
+        <span id="subtitle">기록 게임</span>
+      </div>
+      <div class="top-actions">
+        <button class="icon-button" id="homeBtn" title="처음으로" aria-label="처음으로">⌂</button>
+        <button class="ghost-button" id="recordsBtn">기록</button>
+      </div>
+    </header>
+
+    <section class="screen active" id="menuScreen">
+      <div class="menu">
+        <button class="game-choice choice-catch" data-start="catch">
+          <div class="choice-art"><div class="big-emoji">🍗🧺</div></div>
+          <h2>교촌치킨 받기</h2>
+          <p>치와와 가현이가 던지는 치킨을 바구니로 받아요. 일반 치킨은 1점, 금색 치킨은 5점입니다.</p>
+          <span class="choice-start">시작</span>
+        </button>
+        <button class="game-choice choice-dodge" data-start="dodge">
+          <div class="choice-art"><div class="big-emoji">🏃‍♂️💨</div></div>
+          <h2>가현이피하기</h2>
+          <p>남자 캐릭터를 마우스로 움직여 날아오는 치와와를 피해요. 부딪히면 바로 끝나고, 오래 버틸수록 기록이 올라갑니다.</p>
+          <span class="choice-start">시작</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="screen" id="gameScreen">
+      <div class="hud">
+        <div class="hud-group">
+          <div class="pill">⏱ <span id="timeText">30.0</span></div>
+          <div class="pill"><span id="scoreLabel">점수</span> <span id="scoreText">0</span></div>
+          <div class="pill">최고 <span id="bestText">0</span></div>
+        </div>
+        <div class="hud-group">
+          <div class="pill" id="gameNameText">게임</div>
+        </div>
+      </div>
+      <div class="game-stage" id="gameStage">
+        <canvas id="gameCanvas"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="resultOverlay">
+    <div class="dialog">
+      <h2 id="resultTitle">기록!</h2>
+      <div class="result-score"><span id="resultScore">0</span><span id="resultUnit">점</span></div>
+      <p id="resultMessage">이름을 남기면 기록에 저장됩니다.</p>
+      <div class="name-row">
+        <input id="playerNameInput" maxlength="12" placeholder="이름">
+        <button class="primary-button" id="saveScoreBtn">저장</button>
+      </div>
+      <div class="dialog-actions">
+        <button class="ghost-button" id="retryBtn">다시하기</button>
+        <button class="ghost-button" id="menuBtn">메뉴</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="recordsOverlay">
+    <div class="dialog">
+      <h2>기록</h2>
+      <div class="records-list" id="recordsList"></div>
+      <div class="dialog-actions">
+        <button class="ghost-button" id="clearLocalBtn">로컬 기록 삭제</button>
+        <button class="primary-button" id="closeRecordsBtn">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="pauseOverlay">
+    <div class="dialog">
+      <div class="pause-mark">Ⅱ</div>
+      <h2>일시정지</h2>
+      <p>Esc를 다시 누르면 이어서 시작합니다.</p>
+      <div class="dialog-actions">
+        <button class="primary-button" id="resumeBtn">계속하기</button>
+        <button class="ghost-button" id="pauseMenuBtn">메뉴</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    /*
+      이미지 교체 방법:
+      같은 폴더에 assets 폴더를 만들고 아래 파일명을 넣으면 자동으로 사용합니다.
+      assets/basket.png, assets/chicken.png, assets/golden-chicken.png,
+      assets/catch-background.png, assets/dodge-background.png,
+      assets/chihuahua-1.png, assets/chihuahua-2.png, assets/chihuahua-3.png,
+      assets/man.png
+
+      Firebase 사용 방법:
+      아래 firebaseConfig 값을 본인 프로젝트 값으로 바꾸고,
+      Firestore Database를 만든 뒤 rules를 적절히 설정하면 기록 저장을 Firebase에도 보냅니다.
+    */
+
+    const firebaseConfig = {
+      apiKey: "",
+      authDomain: "",
+      projectId: "",
+      storageBucket: "",
+      messagingSenderId: "",
+      appId: ""
+    };
+
+    const CATCH_GAME_SECONDS = 10;
+    const RECORD_KEY = "gahyeon-play-records-v1";
+    const ASSETS = {
+      basket: "assets/basket.png",
+      chicken: "assets/chicken.png",
+      goldenChicken: "assets/golden-chicken.png",
+      catchBackground: "assets/catch-background.png",
+      dodgeBackground: "assets/dodge-background.png",
+      chihuahua1: "assets/chihuahua-1.png",
+      chihuahua2: "assets/chihuahua-2.png",
+      chihuahua3: "assets/chihuahua-3.png",
+      man: "assets/man.png"
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const canvas = $("#gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const menuScreen = $("#menuScreen");
+    const gameScreen = $("#gameScreen");
+    const resultOverlay = $("#resultOverlay");
+    const recordsOverlay = $("#recordsOverlay");
+    const pauseOverlay = $("#pauseOverlay");
+
+    const state = {
+      mode: null,
+      running: false,
+      paused: false,
+      score: 0,
+      best: 0,
+      timeLeft: CATCH_GAME_SECONDS,
+      lastTime: 0,
+      spawnTimer: 0,
+      pointer: { x: 0, y: 0, active: false },
+      player: { x: 0, y: 0, w: 74, h: 92 },
+      items: [],
+      savedCurrentScore: false
+    };
+
+    const imageStore = {};
+
+    function loadImage(key, src) {
+      const img = new Image();
+      img.src = src;
+      imageStore[key] = img;
+    }
+
+    Object.entries(ASSETS).forEach(([key, src]) => loadImage(key, src));
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      canvas.width = Math.floor(rect.width * dpr);
+      canvas.height = Math.floor(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (!state.pointer.active) {
+        state.pointer.x = rect.width / 2;
+        state.pointer.y = rect.height * 0.78;
+      }
+    }
+
+    function showScreen(name) {
+      menuScreen.classList.toggle("active", name === "menu");
+      gameScreen.classList.toggle("active", name === "game");
+      $("#subtitle").textContent = name === "menu" ? "기록 게임" : "마우스로 움직이기";
+      if (name === "game") {
+        requestAnimationFrame(resizeCanvas);
+      }
+    }
+
+    function getRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(RECORD_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function setRecords(records) {
+      localStorage.setItem(RECORD_KEY, JSON.stringify(records.slice(0, 50)));
+    }
+
+    function gameLabel(mode) {
+      return mode === "catch" ? "교촌치킨 받기" : "가현이피하기";
+    }
+
+    function isDodgeMode(mode = state.mode) {
+      return mode === "dodge";
+    }
+
+    function formatRecordValue(value, mode = state.mode) {
+      return isDodgeMode(mode) ? Number(value).toFixed(1) : String(Math.floor(value));
+    }
+
+    function recordUnit(mode = state.mode) {
+      return isDodgeMode(mode) ? "초" : "점";
+    }
+
+    function getBest(mode) {
+      return getRecords()
+        .filter((record) => record.mode === mode)
+        .reduce((best, record) => Math.max(best, record.score), 0);
+    }
+
+    async function saveScoreToFirebase(record) {
+      if (!firebaseConfig.apiKey || !firebaseConfig.projectId) return false;
+
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+      const { getFirestore, collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      await addDoc(collection(db, "gameRecords"), {
+        ...record,
+        createdAt: serverTimestamp()
+      });
+      return true;
+    }
+
+    async function saveScore() {
+      if (state.savedCurrentScore) return;
+      const name = $("#playerNameInput").value.trim() || "이름없음";
+      const record = {
+        name,
+        score: state.score,
+        mode: state.mode,
+        game: gameLabel(state.mode),
+        date: new Date().toISOString()
+      };
+
+      const records = getRecords();
+      records.push(record);
+      records.sort((a, b) => b.score - a.score);
+      setRecords(records);
+      state.savedCurrentScore = true;
+      $("#saveScoreBtn").textContent = "저장됨";
+
+      try {
+        const firebaseSaved = await saveScoreToFirebase(record);
+        $("#resultMessage").textContent = firebaseSaved
+          ? "Firebase와 로컬 기록에 저장됐습니다."
+          : "로컬 기록에 저장됐습니다. Firebase 설정값을 넣으면 온라인 기록도 저장됩니다.";
+      } catch (error) {
+        $("#resultMessage").textContent = "로컬 기록은 저장됐고, Firebase 저장은 설정을 확인해야 합니다.";
+      }
+    }
+
+    function startGame(mode) {
+      state.mode = mode;
+      state.running = true;
+      state.paused = false;
+      state.score = 0;
+      state.best = getBest(mode);
+      state.timeLeft = isDodgeMode(mode) ? 0 : CATCH_GAME_SECONDS;
+      state.lastTime = 0;
+      state.spawnTimer = 0;
+      state.items = [];
+      state.savedCurrentScore = false;
+      state.pointer.active = false;
+      $("#scoreLabel").textContent = isDodgeMode(mode) ? "기록" : "점수";
+      $("#scoreText").textContent = formatRecordValue(0, mode);
+      $("#bestText").textContent = formatRecordValue(state.best, mode) + recordUnit(mode);
+      $("#timeText").textContent = isDodgeMode(mode) ? "0.0" : CATCH_GAME_SECONDS.toFixed(1);
+      $("#gameNameText").textContent = gameLabel(mode);
+      $("#saveScoreBtn").textContent = "저장";
+      $("#playerNameInput").value = localStorage.getItem("gahyeon-player-name") || "";
+      resultOverlay.classList.remove("show");
+      pauseOverlay.classList.remove("show");
+      showScreen("game");
+      resizeCanvas();
+      requestAnimationFrame(loop);
+    }
+
+    function endGame() {
+      state.running = false;
+      state.paused = false;
+      pauseOverlay.classList.remove("show");
+      const isBest = state.score > state.best;
+      $("#resultTitle").textContent = isBest ? "신기록!" : "게임 끝!";
+      $("#resultScore").textContent = formatRecordValue(state.score);
+      $("#resultUnit").textContent = recordUnit();
+      $("#resultMessage").textContent = isBest ? "좋아요. 이름을 남겨 기록을 갱신해요." : "이름을 남기면 기록에 저장됩니다.";
+      resultOverlay.classList.add("show");
+    }
+
+    function setPaused(paused) {
+      if (!state.running || menuScreen.classList.contains("active")) return;
+      state.paused = paused;
+      pauseOverlay.classList.toggle("show", paused);
+      if (!paused) {
+        state.lastTime = 0;
+        requestAnimationFrame(loop);
+      }
+    }
+
+    function togglePause() {
+      setPaused(!state.paused);
+    }
+
+    function updateHud() {
+      $("#scoreText").textContent = formatRecordValue(state.score);
+      $("#timeText").textContent = Math.max(0, state.timeLeft).toFixed(1);
+    }
+
+    function random(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function spawnCatchItem(width) {
+      const gold = Math.random() < 0.13;
+      state.items.push({
+        type: gold ? "gold" : "chicken",
+        x: random(42, width - 42),
+        y: -40,
+        r: gold ? 27 : 23,
+        vx: random(-70, 70),
+        vy: random(440, 720),
+        spin: random(-4, 4),
+        angle: random(0, Math.PI * 2),
+        score: gold ? 5 : 1
+      });
+    }
+
+    function spawnDodgeItem(width, height) {
+      const side = Math.floor(random(0, 4));
+      const difficulty = Math.min(1, state.timeLeft / 45);
+      const speed = random(190, 330) + state.timeLeft * 18 + difficulty * 140;
+      let x;
+      let y;
+      if (side === 0) {
+        x = random(0, width);
+        y = -50;
+      } else if (side === 1) {
+        x = width + 50;
+        y = random(0, height);
+      } else if (side === 2) {
+        x = random(0, width);
+        y = height + 50;
+      } else {
+        x = -50;
+        y = random(0, height);
+      }
+      const dx = state.player.x - x;
+      const dy = state.player.y - y;
+      const distance = Math.hypot(dx, dy) || 1;
+      const vx = (dx / distance) * speed + random(-45, 45);
+      const vy = (dy / distance) * speed + random(-45, 45);
+      state.items.push({
+        type: "chihuahua",
+        x,
+        y,
+        r: random(25, 36),
+        vx,
+        vy,
+        angle: random(0, Math.PI * 2),
+        spin: random(-5, 5),
+        flipX: vx < 0
+      });
+    }
+
+    function drawFallback(kind, x, y, size, angle = 0) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `${size}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
+      const emoji = {
+        basket: "🧺",
+        chicken: "🍗",
+        goldenChicken: "🍗",
+        chihuahua1: "🐶",
+        chihuahua2: "🐶",
+        chihuahua3: "🐶",
+        man: "🏃‍♂️"
+      }[kind];
+      if (kind === "goldenChicken") {
+        ctx.beginPath();
+        ctx.arc(0, 0, size * 0.52, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffd43b";
+        ctx.fill();
+      }
+      ctx.fillText(emoji, 0, 0);
+      ctx.restore();
+    }
+
+    function drawImageOrFallback(key, x, y, w, h, angle = 0, flipX = false) {
+      const img = imageStore[key];
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.scale(flipX ? -1 : 1, 1);
+        ctx.drawImage(img, -w / 2, -h / 2, w, h);
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(flipX ? -1 : 1, 1);
+        ctx.translate(-x, -y);
+        drawFallback(key, x, y, Math.max(w, h) * 0.72, angle);
+        ctx.restore();
+      }
+    }
+
+    function currentChihuahuaFrame(offset = 0) {
+      const frame = Math.floor((performance.now() / 105 + offset) % 3);
+      return ["chihuahua1", "chihuahua2", "chihuahua3"][frame];
+    }
+
+    function drawChihuahua(x, y, w, h, angle = 0, offset = 0, flipX = false) {
+      drawImageOrFallback(currentChihuahuaFrame(offset), x, y, w, h, angle, flipX);
+    }
+
+    function drawGoldenChicken(x, y, w, h, angle = 0) {
+      ctx.save();
+      ctx.translate(x, y);
+      const radius = Math.max(w, h) * 0.42;
+      const glow = ctx.createRadialGradient(0, 0, radius * 0.1, 0, 0, radius);
+      glow.addColorStop(0, "rgba(255, 238, 113, 0.95)");
+      glow.addColorStop(1, "rgba(255, 190, 47, 0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      drawImageOrFallback("goldenChicken", x, y, w, h, angle);
+    }
+
+    function drawCoverImage(key, width, height) {
+      const img = imageStore[key];
+      if (!img || !img.complete || img.naturalWidth <= 0) return false;
+      const imageRatio = img.naturalWidth / img.naturalHeight;
+      const canvasRatio = width / height;
+      let drawW = width;
+      let drawH = height;
+      let drawX = 0;
+      let drawY = 0;
+      if (imageRatio > canvasRatio) {
+        drawH = height;
+        drawW = height * imageRatio;
+        drawX = (width - drawW) / 2;
+      } else {
+        drawW = width;
+        drawH = width / imageRatio;
+        drawY = (height - drawH) / 2;
+      }
+      ctx.drawImage(img, drawX, drawY, drawW, drawH);
+      return true;
+    }
+
+    function drawBackground(width, height) {
+      ctx.clearRect(0, 0, width, height);
+      const backgroundKey = state.mode === "catch" ? "catchBackground" : "dodgeBackground";
+      if (drawCoverImage(backgroundKey, width, height)) {
+        return;
+      }
+      const gradient = ctx.createLinearGradient(0, 0, width, height);
+      if (state.mode === "catch") {
+        gradient.addColorStop(0, "#fff0d1");
+        gradient.addColorStop(0.56, "#ffe0b8");
+        gradient.addColorStop(1, "#e9f8ff");
+      } else {
+        gradient.addColorStop(0, "#e9f8ff");
+        gradient.addColorStop(0.52, "#f7ffe9");
+        gradient.addColorStop(1, "#fff0d1");
+      }
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.48)";
+      for (let i = 0; i < 9; i++) {
+        const x = ((i * 173) % Math.max(width, 1)) + 10;
+        const y = ((i * 97) % Math.max(height, 1)) + 20;
+        ctx.beginPath();
+        ctx.arc(x, y, 28 + (i % 3) * 14, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = state.mode === "catch" ? "rgba(228, 65, 47, 0.13)" : "rgba(27, 167, 132, 0.13)";
+      ctx.fillRect(0, height - 54, width, 54);
+    }
+
+    function updateCatch(dt, width, height) {
+      state.spawnTimer -= dt;
+      if (state.spawnTimer <= 0) {
+        spawnCatchItem(width);
+        state.spawnTimer = random(0.16, 0.34);
+      }
+
+      const basketW = Math.min(132, Math.max(92, width * 0.16));
+      const basketH = basketW * 0.62;
+      state.player.x = Math.min(width - basketW / 2, Math.max(basketW / 2, state.pointer.x || width / 2));
+      state.player.y = height - 76;
+      state.player.w = basketW;
+      state.player.h = basketH;
+
+      state.items.forEach((item) => {
+        item.x += item.vx * dt;
+        item.y += item.vy * dt;
+        item.angle += item.spin * dt;
+        if (item.x < item.r || item.x > width - item.r) item.vx *= -0.7;
+      });
+
+      state.items = state.items.filter((item) => {
+        const caught =
+          item.y + item.r > state.player.y - basketH * 0.3 &&
+          item.y < state.player.y + basketH * 0.35 &&
+          item.x > state.player.x - basketW * 0.48 &&
+          item.x < state.player.x + basketW * 0.48;
+        if (caught) {
+          state.score += item.score;
+          return false;
+        }
+        return item.y < height + 80;
+      });
+    }
+
+    function updateDodge(dt, width, height) {
+      const size = Math.min(88, Math.max(62, width * 0.1));
+      const targetX = state.pointer.active ? state.pointer.x : width / 2;
+      const targetY = state.pointer.active ? state.pointer.y : height / 2;
+      state.player.x += (targetX - state.player.x) * Math.min(1, dt * 14);
+      state.player.y += (targetY - state.player.y) * Math.min(1, dt * 14);
+      state.player.x = Math.min(width - size / 2, Math.max(size / 2, state.player.x || width / 2));
+      state.player.y = Math.min(height - size / 2, Math.max(size / 2, state.player.y || height / 2));
+      state.player.w = size;
+      state.player.h = size;
+
+      state.spawnTimer -= dt;
+      if (state.spawnTimer <= 0) {
+        spawnDodgeItem(width, height);
+        state.spawnTimer = Math.max(0.12, random(0.46, 0.82) - state.timeLeft * 0.018);
+      }
+
+      state.score = Math.max(state.score, Math.floor(state.timeLeft * 10) / 10);
+
+      let hit = false;
+      state.items.forEach((item) => {
+        item.x += item.vx * dt;
+        item.y += item.vy * dt;
+        item.angle += item.spin * dt;
+        const distance = Math.hypot(item.x - state.player.x, item.y - state.player.y);
+        if (distance < item.r + size * 0.32) hit = true;
+      });
+
+      state.items = state.items.filter((item) => (
+        item.x > -110 && item.x < width + 110 && item.y > -110 && item.y < height + 110
+      ));
+
+      if (hit) {
+        endGame();
+        return false;
+      }
+
+      return true;
+    }
+
+    function drawCatch(width, height) {
+      drawBackground(width, height);
+      drawChihuahua(width / 2, 88, 116, 96, Math.sin(performance.now() / 240) * 0.08);
+      ctx.fillStyle = "rgba(37, 27, 24, 0.18)";
+      ctx.beginPath();
+      ctx.ellipse(width / 2, 142, 58, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      state.items.forEach((item) => {
+        if (item.type === "gold") {
+          drawGoldenChicken(item.x, item.y, item.r * 2.35, item.r * 2.35, item.angle);
+        } else {
+          drawImageOrFallback("chicken", item.x, item.y, item.r * 2.2, item.r * 2.2, item.angle);
+        }
+      });
+
+      drawImageOrFallback("basket", state.player.x, state.player.y, state.player.w, state.player.h, 0);
+    }
+
+    function drawDodge(width, height) {
+      drawBackground(width, height);
+      state.items.forEach((item, index) => {
+        drawChihuahua(item.x, item.y, item.r * 2.7, item.r * 2.25, item.angle, index, item.flipX);
+      });
+
+      ctx.fillStyle = "rgba(37, 27, 24, 0.14)";
+      ctx.beginPath();
+      ctx.ellipse(state.player.x, state.player.y + state.player.h * 0.38, state.player.w * 0.34, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+      drawImageOrFallback("man", state.player.x, state.player.y, state.player.w, state.player.h, 0);
+    }
+
+    function loop(timestamp) {
+      if (!state.running) return;
+      if (state.paused) return;
+      if (!state.lastTime) state.lastTime = timestamp;
+      const dt = Math.min(0.033, (timestamp - state.lastTime) / 1000);
+      state.lastTime = timestamp;
+
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      state.timeLeft += isDodgeMode() ? dt : -dt;
+
+      if (state.mode === "catch") {
+        updateCatch(dt, width, height);
+        drawCatch(width, height);
+      } else {
+        const alive = updateDodge(dt, width, height);
+        drawDodge(width, height);
+        updateHud();
+        if (!alive) return;
+      }
+
+      updateHud();
+      if (!isDodgeMode() && state.timeLeft <= 0) {
+        state.timeLeft = 0;
+        updateHud();
+        endGame();
+        return;
+      }
+      requestAnimationFrame(loop);
+    }
+
+    function updatePointer(event) {
+      const rect = canvas.getBoundingClientRect();
+      state.pointer.x = event.clientX - rect.left;
+      state.pointer.y = event.clientY - rect.top;
+      state.pointer.active = true;
+    }
+
+    function renderRecords() {
+      const records = getRecords();
+      const list = $("#recordsList");
+      list.innerHTML = "";
+      if (!records.length) {
+        list.innerHTML = "<div class=\"record-row\"><span>!</span><span>아직 기록이 없습니다</span><small></small><small></small></div>";
+        return;
+      }
+
+      records
+        .slice()
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 20)
+        .forEach((record, index) => {
+          const row = document.createElement("div");
+          row.className = "record-row";
+          const date = new Date(record.date);
+          row.innerHTML = `
+            <span>${index + 1}</span>
+            <span>${escapeHtml(record.name)}</span>
+            <small>${escapeHtml(record.game || gameLabel(record.mode))}</small>
+            <strong>${formatRecordValue(record.score, record.mode)}${recordUnit(record.mode)}</strong>
+          `;
+          row.title = Number.isNaN(date.getTime()) ? "" : date.toLocaleString();
+          list.appendChild(row);
+        });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    document.querySelectorAll("[data-start]").forEach((button) => {
+      button.addEventListener("click", () => startGame(button.dataset.start));
+    });
+
+    $("#homeBtn").addEventListener("click", () => {
+      state.running = false;
+      state.paused = false;
+      resultOverlay.classList.remove("show");
+      recordsOverlay.classList.remove("show");
+      pauseOverlay.classList.remove("show");
+      showScreen("menu");
+    });
+
+    $("#recordsBtn").addEventListener("click", () => {
+      renderRecords();
+      recordsOverlay.classList.add("show");
+    });
+
+    $("#closeRecordsBtn").addEventListener("click", () => recordsOverlay.classList.remove("show"));
+    $("#menuBtn").addEventListener("click", () => {
+      resultOverlay.classList.remove("show");
+      showScreen("menu");
+    });
+    $("#resumeBtn").addEventListener("click", () => setPaused(false));
+    $("#pauseMenuBtn").addEventListener("click", () => {
+      state.running = false;
+      state.paused = false;
+      pauseOverlay.classList.remove("show");
+      showScreen("menu");
+    });
+    $("#retryBtn").addEventListener("click", () => startGame(state.mode || "catch"));
+    $("#saveScoreBtn").addEventListener("click", async () => {
+      localStorage.setItem("gahyeon-player-name", $("#playerNameInput").value.trim());
+      await saveScore();
+    });
+    $("#clearLocalBtn").addEventListener("click", () => {
+      setRecords([]);
+      renderRecords();
+    });
+
+    canvas.addEventListener("pointermove", updatePointer);
+    canvas.addEventListener("pointerdown", updatePointer);
+    window.addEventListener("resize", resizeCanvas);
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && state.running) {
+        event.preventDefault();
+        togglePause();
+      }
+    });
+    window.addEventListener("blur", () => {
+      if (state.running) state.lastTime = 0;
+    });
+
+    resizeCanvas();
+  </script>
+</body>
+</html>
