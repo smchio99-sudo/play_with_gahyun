@@ -900,14 +900,23 @@
     Object.entries(ASSETS).forEach(([key, src]) => loadImage(key, src));
 
     function resizeCanvas() {
-      const rect = canvas.getBoundingClientRect();
+      // 부모 컨테이너 대신 뷰포트 크기에서 직접 계산 (topbar 높이 제외)
+      // CSS 레이아웃 문제로 캔버스가 0×0이 되는 것을 방지
+      const topbar = document.querySelector(".topbar");
+      const topbarHeight = topbar ? topbar.offsetHeight : 66;
+      const width = window.innerWidth;
+      const height = window.innerHeight - topbarHeight;
+
       const dpr = Math.max(1, window.devicePixelRatio || 1);
-      canvas.width = Math.floor(rect.width * dpr);
-      canvas.height = Math.floor(rect.height * dpr);
+      // CSS 크기를 직접 픽셀로 박음
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (!state.pointer.active) {
-        state.pointer.x = rect.width / 2;
-        state.pointer.y = rect.height * 0.78;
+        state.pointer.x = width / 2;
+        state.pointer.y = height * 0.78;
       }
     }
 
